@@ -1,0 +1,138 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: "{{  .Chart.Name }}-deployment"
+  labels:
+    chart: '{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  template:
+    metadata:
+      labels:
+        app: "{{  .Chart.Name }}-selector"
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecret }}
+      containers:
+      - name: "{{  .Chart.Name  }}"
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.service.servicePort }}
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds}}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds}}
+        resources:
+          requests:
+            cpu: "{{ .Values.image.resources.requests.cpu }}"
+            memory: "{{ .Values.image.resources.requests.memory }}"
+        env:
+          - name: MONGO_URL
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: mongoUrl
+          - name: BASE_PATH
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: basePath
+          - name: PORT
+            value : "{{ .Values.service.servicePort }}"
+          - name: SESSION_SECRET
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: sessionSecret
+          - name: NODE_ENV
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: nodeEnv
+          - name: SIGNUP_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: signupEndpoint
+          - name: LOGIN_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: loginEndpoint
+          - name: GET_USERS_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: getUsersEndpoint
+          - name: GET_BILLS_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: getBillsEndpoint
+          - name: UPSERT_BILL_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: upsertBillEndpoint
+          - name: DROP_BILLS_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: dropBillsEndpoint
+          - name: CREATE_ACCOUNT_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: createAccountEndpoint
+          - name: GET_ACCOUNTS_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: getAccountsEndpoint
+          - name: ACCOUNT_WITHDRAW_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: accountWithdrawEndpoint
+          - name: ACCOUNT_DEPOSIT_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: accountDepositEndpoint
+          - name: DROP_ACCOUNTS_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: dropAccountsEndpoint
+          - name: CREATE_TRANSACTION_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: createTransactionEndpoint
+          - name: GET_TRANSACTIONS_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: getTransactionsEndpoint
+          - name: DROP_TRANSACTIONS_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: dropTransactionsEndpoint
+          - name: CHAT_ENDPOINT
+            valueFrom:
+              configMapKeyRef:
+                name: "{{  .Chart.Name }}-configmap"
+                key: chatEndpoint
+          - name: CONVERSATION_BINDING
+            valueFrom:
+              secretKeyRef:
+                name: "binding-innovate-conversation-service"
+                key: binding

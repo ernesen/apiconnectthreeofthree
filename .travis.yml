@@ -1,0 +1,25 @@
+language: node_js
+node_js: 8
+sudo: required
+group: stable
+dist: trusty
+os: linux
+
+services:
+  - docker
+
+addons:
+  apt:
+    sources:
+      - debian-sid
+
+install:
+  - "npm -g install npm"
+  - "./scripts/install_bx.sh"
+
+before-script:
+  - "sudo apt-get install cabal-install"
+  - "cabal update"
+  - "cabal install shellcheck"
+
+script: "npm test"
